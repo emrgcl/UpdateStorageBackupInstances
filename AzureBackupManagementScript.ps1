@@ -112,7 +112,7 @@ Function Write-Log {
     [string]$LogFilePath = "$($env:TEMP)\log_$((New-Guid).Guid).txt",
     [Switch]$DoNotRotateDaily
     )
-    
+    $WhatIfPreference=$false
     if ($DoNotRotateDaily) {
 
         
@@ -331,8 +331,8 @@ catch {
 
 $ScriptStart = Get-Date
 write-log "Script started."
-Update-AzConfig -EnableLoginByWam $false | out-null
-Connect-AzAccount -TenantId $TenantID | Out-Null
+Update-AzConfig -EnableLoginByWam $false -whatif:$false| out-null
+Connect-AzAccount -TenantId $TenantID -whatif:$false | Out-Null
 $AzToken = (Get-AzAccessToken -ResourceUrl "https://management.azure.com").Token
 if (-not $AzToken) {
     throw "Failed to get AzToken"
@@ -409,7 +409,7 @@ foreach ($Subscription in $Subscriptions ) {
                 }
                 Write-Log "Updating Backup Instance $($backupInstance.Name) for $($BackupInstance.Properties.dataSourceInfo.resourceName). Containers: $ContainerListString"
                 # implement what if below
-                if ($PSCmdlet.ShouldProcess("Update Backup Instance", "Update Backup Instance for $($BackupInstance.Properties.dataSourceInfo.resourceName)")) {            
+                if ($PSCmdlet.ShouldProcess("'$($BackupInstance.Properties.dataSourceInfo.resourceName)' with containers: $ContainerListString", "Update Backup Instance")) {            
                 Update-AzureBackupInstance @Params
                }
             }
